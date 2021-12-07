@@ -52,18 +52,16 @@ pip install easy-tcp-python2-3
 
 
 2. uoais(for uoais.py)
- - python 3.7, pytorch 1.9.0, torchvision 0.9.0, CUDA 11.1(or 10.1), detectron2 v0.5 or v0.6
+ - python 3.7, pytorch 1.9.0, torchvision 0.9.0, CUDA 11.1, detectron2 v0.5 or v0.6
 ```
 conda create -n uoais python=3.7
 conda activate uoais
-pip install torch torchvision
+pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
 pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ``` 
-* if Cuda version confilct problem:: nvcc -V, torch.version.cuda(if Your CUDA is 11.1) 
-```
-pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+(please CUDA version check: nvcc -V, torch.version.cuda ) 
 
-```
+    
 
 
 - install detectron2...
