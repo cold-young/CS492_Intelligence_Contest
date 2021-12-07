@@ -60,7 +60,7 @@ pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f htt
 pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ``` 
 (please CUDA version check: nvcc -V, torch.version.cuda ) 
-
+(If, CUDA version confilct => uoais setup.py install X)
     
 
 
