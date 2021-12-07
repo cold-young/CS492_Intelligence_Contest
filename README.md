@@ -27,9 +27,11 @@ Contact_Graspnet_server.py (for ROS)
 #### Install Repository (CS492_Intelligence_contest/src) 
 1. git clone `CS_492_intelligence_contest` or `gist-ailab/deep-grasping` 
 2. `cd src`, git clone `contact_graspnet`,`uoais`
-`git clone https://github.com/SeungBack/contact_graspnet.git`
-`git clone https://github.com/gist-ailab/uoais.git
-    ` + Enviroment setup(1~7) + Test ROS nodes 1.Realsense D-435 ..(나중에 namespace 변경 필요할듯)
+```
+git clone https://github.com/SeungBack/contact_graspnet.git
+git clone https://github.com/gist-ailab/uoais.git
+```
+  + Enviroment setup(1~7) + Test ROS nodes 1.Realsense D-435 ..(나중에 namespace 변경 필요할듯)
       (https://github.com/gist-ailab/uoais#environment-setup)
 3. Install `easy_tcp_python2_3`, `open3d-ros-helper` (Use conda env!!!)
  https://github.com/SeungBack/open3d-ros-helper (env py2.7, pip2 install~)
@@ -40,7 +42,9 @@ Contact_Graspnet_server.py (for ROS)
 1. contact_graspnet_env(for contact_graspnet_client.py)
 - python 3.7, tensorflow 2.2, CUDA 10.1, CUCNN 7.6.0
 - yml file location: https://github.com/SeungBack/contact_graspnet 
-`conda env create -f contact_graspnet_env.yml`
+```
+conda env create -f contact_graspnet_env.yml
+```
 
 
 2. uoais(for uoais.py)
