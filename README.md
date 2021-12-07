@@ -1,6 +1,6 @@
 
 # CS492_Intelligence_Contest
-## forked from Deep Grasping ROS (Seunghyeok Back)
+#### forked from Deep Grasping ROS (Seunghyeok Back)
 
 - ROS wrapper for DNN based robotic grasping algorithms
 - Support Contact-GraspNet [[paper]](https://arxiv.org/abs/2103.14127) [[code]](https://github.com/NVlabs/contact_graspnet)
