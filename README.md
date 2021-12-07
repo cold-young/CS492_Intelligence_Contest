@@ -51,8 +51,8 @@ pip install easy-tcp-python2-3
 ```
 
 
-2. uoais(for uoais.py)
- - python 3.7, pytorch 1.9.0, torchvision 0.9.0, CUDA 11.1, detectron2 v0.5 or v0.6
+2. uoais(for uoais.py : 작동 O)
+ - python 3.7, pytorch 1.8.0+cu111, torchvision 0.9.0+cu111, CUDA 11.1, detectron2 v0.6+cu111+torch 1.8.0
 ```
 conda create -n uoais python=3.7
 conda activate uoais
@@ -60,20 +60,12 @@ pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f htt
 pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ``` 
 (please CUDA version check: nvcc -V, torch.version.cuda ) 
-(If, CUDA version confilct => uoais setup.py install X)
+(If, CUDA version confilct => uoais setup.py build develop 실행 )
     
-
-
 - install detectron2...
  (https://detectron2.readthedocs.io/en/latest/tutorials/install.html#requirements)
 
-```
-python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
-``` 
-Or, to install it from a local clone:
-```git clone https://github.com/facebookresearch/detectron2.git
-python -m pip install -e detectron2
-```
+
 
 ## RUN
 ### Robot
@@ -109,10 +101,14 @@ conda activate contact_graspnet_env \
     && CUDA_VISIBLE_DEVICES=0 python contact_graspnet/contact_grasp_client.py --local_regions --filter_grasps
 ```
 
-2. uoais client.py
+2. uoais client.py (예제는 작동 됨)
 ```
 conda activate uoais \
     && roscd deep_grasping/src/uoais \
     && CUDA_VISIBLE_DEVICES=1 python demo/uoais_client.py
 ```
 * We must make 'uoais_client.py' or other files
+- For uoais example
+```
+python tools/run_on_OSD.py --use-cgnet --dataset-path ./sample_data --config-file configs/R50_rgbdconcat_mlc_occatmask_hom_concat.yaml
+```
