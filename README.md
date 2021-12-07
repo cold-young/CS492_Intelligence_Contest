@@ -112,6 +112,7 @@ conda activate contact_graspnet_env \
 2. uoais client.py
 ```
 conda activate uoais \
-    && roscd deep_grasping_ros/src/uoais \
+    && roscd deep_grasping/src/uoais \
     && CUDA_VISIBLE_DEVICES=1 python demo/uoais_client.py
 ```
+* We must make 'uoais_client.py' or other files
