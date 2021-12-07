@@ -77,13 +77,24 @@ python -m pip install -e detectron2
 ## RUN
 ### Robot
 ``` 
+export ROS_MASTER_URI=http://192.168.0.100:11311
+sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
+rostopic list
+
 TODO: localhost:11311 -> haetae 
 launch file 
 bash file ....
 ```
+- RViz(Haetae ROS 연결 확인 후)
+```
+export ROS_MASTER_URI=http://192.168.0.100:11311
+source navigation_ws/devel/setup.bash
+rosrun rviz rviz
+```
 
 ### Contact graspnet server
 - python == 2.7, with dependencies of rirolab/navigation_ws 
+- master node 11311 필요
 ```
 roscd deep_grasping && python src/contact_grasp_server.py
 ```
