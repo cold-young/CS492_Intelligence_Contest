@@ -3,8 +3,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-color = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/color.npy")
-segmap = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/segmap.npy")
+color = np.load("/home/scorpius/CS492_project_2/deep-grasping/color.npy")
+segmap = np.load("/home/scorpius/CS492_project_2/deep-grasping/segmap.npy")
 
 masks = []
 for id in np.unique(segmap):

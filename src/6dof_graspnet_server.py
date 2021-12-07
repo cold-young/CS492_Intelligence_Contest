@@ -21,21 +21,24 @@ class GraspNet():
         self.cv_bridge = cv_bridge.CvBridge()
 
         # initialize dnn server 
-        self.sock, add = su.initialize_server('localhost', 7777)
+        self.sock, add = su.initialize_server('localhost', 7777) # server port #: 7777
         
-        self.camera_info = rospy.wait_for_message("/azure1/rgb/camera_info", CameraInfo)
+        #self.camera_info = rospy.wait_for_message("/azure1/rgb/camera_info", CameraInfo)
+        self.camer_info = rospy.wait_for_message("camera/color/camera_info", CameraInfo) #Only D435
+
         self.data = {}
         self.data["intrinsics_matrix"] = np.array(self.camera_info.K).reshape(3, 3)
         
-        rgb_sub = message_filters.Subscriber("/azure1/rgb/image_raw", Image, buff_size=2048*1536*3)
-        depth_sub = message_filters.Subscriber("/azure1/depth_to_rgb/image_raw", Image, buff_size=2048*1536)
-        point_sub = message_filters.Subscriber("/azure1/points2", PointCloud2, buff_size=2048*1536*3)
+        # rgb_sub = message_filters.Subscriber("/azure1/rgb/image_raw", Image, buff_size=2048*1536*3)
+        # depth_sub = message_filters.Subscriber("/azure1/depth_to_rgb/image_raw", Image, buff_size=2048*1536)
+        # point_sub = message_filters.Subscriber("/azure1/points2", PointCloud2, buff_size=2048*1536*3)
+        rgb_sub = message_filters.Subscriber("/camera/color/image_raw", Image)
+        depth_sub = message_filters.Subscriber("/camera/depth/image_rect_raw", Image, buff_size=2048*1536)
+        point_sub = message_filters.Subscriber("/camera/depth/color/points", PointCloud2, buff_size=2048*1536*3)
         self.ts = message_filters.ApproximateTimeSynchronizer([rgb_sub, depth_sub, point_sub], queue_size=1, slop=1)
         self.ts.registerCallback(self.inference)
 
-
-
-        self.result_pub = rospy.Publisher("/classification_result", Image, queue_size=1)
+        self.result_pub = rospy.Publisher("/classification_result", Image, queue_size=1) 
 
     def inference(self, rgb, depth, pcl_msg):
         

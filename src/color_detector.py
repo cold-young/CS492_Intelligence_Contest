@@ -34,7 +34,7 @@ class ColorDetector():
         self.listener = tf2_ros.TransformListener(self.tf_buffer)
 
         # get K and H from camera to robot base
-        camera_info = rospy.wait_for_message("/azure1/rgb/camera_info", CameraInfo)
+        camera_info = rospy.wait_for_message("/camera/color/camera_info", CameraInfo)
         self.K = np.array(camera_info.K).reshape(3, 3)
         get_XYZ_to_pick_srv = rospy.Service('/get_XYZ_to_pick', get_target_pos, self.get_XYZ_to_pick)
         self.XYZ_to_pick_markers_pub = rospy.Publisher('/XYZ_to_Pick', MarkerArray, queue_size=1)
@@ -43,7 +43,7 @@ class ColorDetector():
     def get_transform_cam_to_world(self):
         while True:
             try:
-                transform_cam_to_world = self.tf_buffer.lookup_transform("world", "azure1_rgb_camera_link", rospy.Time(), rospy.Duration(5.0))
+                transform_cam_to_world = self.tf_buffer.lookup_transform("world", "azure1_rgb_camera_link", rospy.Time(), rospy.Duration(5.0))##
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
                 print(e)
                 rospy.sleep(0.5)
@@ -54,12 +54,12 @@ class ColorDetector():
 
     def get_XYZ_to_pick(self, msg):
         
-        rospy.loginfo("Wating for /azure1/rgb/image_raw")
+        rospy.loginfo("Wating for /camera/color/image_raw")
         # get rgb
-        rgb_msg = rospy.wait_for_message("/azure1/rgb/image_raw", Image)
+        rgb_msg = rospy.wait_for_message("/camera/color/image_raw", Image)
         rgb = self.cv_bridge.imgmsg_to_cv2(rgb_msg, desired_encoding='bgr8')        
         # get point cloud
-        pc_msg = rospy.wait_for_message("/azure1/points2", PointCloud2)
+        pc_msg = rospy.wait_for_message("/camera/depth/color/points", PointCloud2)
         cloud_cam = orh.rospc_to_o3dpc(pc_msg, remove_nans=True) 
 
         self.get_transform_cam_to_world()

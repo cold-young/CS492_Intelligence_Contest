@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 from math import degrees
 import rospy
@@ -13,6 +13,8 @@ from easy_tcp_python2_3 import socket_utils as su
 from open3d_ros_helper import open3d_ros_helper as orh
 from visualization_msgs.msg import MarkerArray, Marker
 from geometry_msgs.msg import Point
+#from deep_grasping_ros.msg import Grasp
+#from deep_grasping_ros.srv import GetTargetContactGraspSegm, GetTargetContactGraspSegmResponse
 from deep_grasping_ros.msg import Grasp
 from deep_grasping_ros.srv import GetTargetContactGraspSegm, GetTargetContactGraspSegmResponse
 from scipy.spatial.transform import Rotation as R
@@ -44,7 +46,8 @@ class ContactGraspNet():
         self.marker_pub = rospy.Publisher("target_grasp", MarkerArray, queue_size = 1)
         self.marker_id = 0
         self.cmap = plt.get_cmap("YlGn")
-        control_points = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
+        #control_points = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
+        control_points = np.load("/home/scorpius//home/scorpius/catkin_ws/src/deep-grasping/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
         control_points = [[0, 0, 0], control_points[0, :], control_points[1, :], control_points[-2, :], control_points[-1, :]]
         control_points = np.asarray(control_points, dtype=np.float32)
         control_points[1:3, 2] = 0.0584
@@ -60,10 +63,17 @@ class ContactGraspNet():
     def get_target_grasp_pose(self, msg):
         
         while True:
-            try:
+            try: #tf_buffer.lookup_transform() / Transformation matrix
+                H_base_to_cam = self.tf_buffer.lookup_transform("haetae_ur5e_base_link", "haetae_wrist_camera_link", rospy.Time(), rospy.Duration(5.0))
+                H_base_to_hand = self.tf_buffer.lookup_transform("haetae_ur5e_base_link", "haetae_gripper_base_link", rospy.Time(), rospy.Duration(5.0))
+                H_cam_to_hand = self.tf_buffer.lookup_transform("haetae_wrist_camera_link", "haetae_gripper_base_link", rospy.Time(), rospy.Duration(5.0))
+                #msg-> pose,PoseStamped,Trasnform, TransformStamped
+               
+                """
                 H_base_to_cam = self.tf_buffer.lookup_transform("panda_link0", "azure1_rgb_camera_link", rospy.Time(), rospy.Duration(5.0))
                 H_base_to_hand = self.tf_buffer.lookup_transform("panda_link0", "panda_hand", rospy.Time(), rospy.Duration(5.0))
                 H_cam_to_hand = self.tf_buffer.lookup_transform("azure1_rgb_camera_link", "panda_hand", rospy.Time(), rospy.Duration(5.0))
+                """
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
                 print(e)
                 rospy.sleep(0.5)
@@ -71,7 +81,7 @@ class ContactGraspNet():
                 H_base_to_cam = orh.msg_to_se3(H_base_to_cam)
                 H_base_to_hand = orh.msg_to_se3(H_base_to_hand)
                 H_cam_to_hand = orh.msg_to_se3(H_cam_to_hand)
-                break
+                break #4x4 matrix array
 
 
         self.initialize_marker()
@@ -94,7 +104,7 @@ class ContactGraspNet():
         grasps = []
         for k in pred_grasps_cam.keys():
             if len(scores[k]) == 0:
-                # rospy.logwarn_once("No grasps are detected")
+                rospy.logwarn_once("No grasps are detected")
                 continue
             for i, pred_grasp_cam in enumerate(pred_grasps_cam[k]):
                 H_cam_to_target = pred_grasp_cam
@@ -109,11 +119,11 @@ class ContactGraspNet():
                 # p_base_to_gripper
                 p_base_to_gripper = np.matmul(H_base_to_cam, H_gripper_to_cam.T)[:3, :]
                 all_pts.append(p_base_to_gripper) # [3, 15]
-                self.publish_marker(p_base_to_gripper, "panda_link0", scores[k][i])
-
+#                self.publish_marker(p_base_to_gripper, "panda_link0", scores[k][i]) ###
+                self.publish_marker(p_base_to_gripper, "haetae_ur5e_base_link", scores[k][i])
                 H_base_to_target = np.matmul(H_base_to_cam, H_cam_to_target)
                 H_base_to_target[:3, :3] = np.matmul(H_base_to_target[:3, :3], H_cam_to_hand[:3, :3])
-                t_target_grasp = orh.se3_to_transform_stamped(H_base_to_target, "panda_link0", "target_grasp_pose")
+                t_target_grasp = orh.se3_to_transform_stamped(H_base_to_target, "haetae_ur5e_base_link", "target_grasp_pose") ###
                 
                 grasp = Grasp()
                 grasp.id = "obj_{}_grasp_{}".format(int(k), i)
