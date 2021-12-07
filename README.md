@@ -59,6 +59,12 @@ conda activate uoais
 pip install torch torchvision
 pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ``` 
+* if Cuda version confilct problem:: nvcc -V, torch.version.cuda(if Your CUDA is 11.1) 
+```
+pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+
+```
+
 
 - install detectron2...
  (https://detectron2.readthedocs.io/en/latest/tutorials/install.html#requirements)
@@ -66,8 +72,6 @@ pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ```
 python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 ``` 
-(add --user if you don't have permission)
-
 Or, to install it from a local clone:
 ```git clone https://github.com/facebookresearch/detectron2.git
 python -m pip install -e detectron2
