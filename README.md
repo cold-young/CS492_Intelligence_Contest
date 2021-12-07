@@ -53,12 +53,12 @@ pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz`
 - install detectron2...
  (https://detectron2.readthedocs.io/en/latest/tutorials/install.html#requirements)
 
-`python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
-# (add --user if you don't have permission)
+```python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+ (add --user if you don't have permission)
 
-# Or, to install it from a local clone:
+ Or, to install it from a local clone:
 git clone https://github.com/facebookresearch/detectron2.git
-python -m pip install -e detectron2`
+python -m pip install -e detectron2```
 
 ### RUN
 Robot
