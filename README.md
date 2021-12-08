@@ -30,7 +30,7 @@ Contact_Graspnet_server.py (for ROS)
 git clone https://github.com/SeungBack/contact_graspnet.git
 git clone https://github.com/gist-ailab/uoais.git
 ```
-  + Enviroment setup(1~7) + Test ROS nodes 1.Realsense D-435 ..(나중에 namespace 변경 필요할듯)
+  + Enviroment setup(1~7) + Test "ROS nodes 1.Realsense D-435" ..(나중에 namespace 변경 필요할듯)
 - (https://github.com/gist-ailab/uoais#environment-setup)
 3. Install `easy_tcp_python2_3`, `open3d-ros-helper` (Use conda env!!!)
 - https://github.com/SeungBack/open3d-ros-helper (env py2.7, pip2 install~)
@@ -69,7 +69,7 @@ pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 
 ## RUN
 ### Robot(HAETAE)
-* If you run in CPU machine, try http://192.168.10.10:11311, wifi off
+* If you run in CPU machine(attaced Haetae..), try http://192.168.10.10:11311 and wifi off
 
 Haetae RUN(+ wrist_camera)
 ```
