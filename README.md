@@ -41,7 +41,7 @@ git clone https://github.com/gist-ailab/uoais.git
 1. contact_graspnet_env(for contact_graspnet_client.py)
 - python 3.7, tensorflow 2.2, CUDA 10.1, CUCNN 7.6.0
 - yml file location: https://github.com/SeungBack/contact_graspnet 
-- Install : easy_tcp_python2_3, 
+- Install : easy_tcp_python2_3
 
 ```
 conda env create -f contact_graspnet_env.yml
@@ -52,7 +52,7 @@ pip install easy-tcp-python2-3
 
 
 2. uoais(for uoais.py : 작동 O)
- - python 3.7, pytorch 1.8.0+cu111, torchvision 0.9.0+cu111, CUDA 11.1, detectron2 v0.6+cu111+torch 1.8.0
+ - Enviroment: python 3.7, pytorch 1.8.0+cu111, torchvision 0.9.0+cu111, CUDA 11.1, detectron2 v0.6+cu111+torch 1.8.0
 ```
 conda create -n uoais python=3.7
 conda activate uoais
@@ -60,7 +60,7 @@ pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f htt
 pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 ``` 
 (please CUDA version check: nvcc -V, torch.version.cuda ) 
-(If, CUDA version confilct => uoais setup.py build develop 실행 )
+(If, CUDA version confilct => uoais setup.py build develop 실행 안됨 )
     
 - install detectron2...
  (https://detectron2.readthedocs.io/en/latest/tutorials/install.html#requirements)
@@ -68,7 +68,18 @@ pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 
 
 ## RUN
-### Robot
+### Robot(HAETAE)
+* If you run in CPU machine, try http://192.168.10.10:11311, wifi off
+
+Haetae RUN(+ wrist_camera)
+```
+export ROS_MASTER_URI=http://192.168.0.100:11311
+sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
+source ./robot.sh real manip 
+roslaunch pick_and_place_demo demo.launch sim:=false perception_src:=none
+```
+
+(To modify...)
 ``` 
 export ROS_MASTER_URI=http://192.168.0.100:11311
 sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
@@ -78,6 +89,7 @@ TODO: localhost:11311 -> haetae
 launch file 
 bash file ....
 ```
+
 - RViz(Haetae ROS 연결 확인 후)
 ```
 export ROS_MASTER_URI=http://192.168.0.100:11311
