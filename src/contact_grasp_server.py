@@ -47,7 +47,7 @@ class ContactGraspNet():
         self.marker_id = 0
         self.cmap = plt.get_cmap("YlGn")
         #control_points = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
-        control_points = np.load("/home/scorpius//home/scorpius/catkin_ws/src/deep-grasping/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
+        control_points = np.load("/home/scorpius/catkin_ws/src/deep-grasping/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
         control_points = [[0, 0, 0], control_points[0, :], control_points[1, :], control_points[-2, :], control_points[-1, :]]
         control_points = np.asarray(control_points, dtype=np.float32)
         control_points[1:3, 2] = 0.0584
