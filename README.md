@@ -20,7 +20,8 @@ Contact_Graspnet_server.py (for ROS)
  - Contact_graspnet_client.py (for ROS)
 /uoais
  - launch/uoais_rs_d435.launch (need to modify name space)
- 
+ -(TOBO) uoais_client.py
+(TODO)namespace 
 ```
 ## Env setup
 ### 1. Install Repository (CS492_Intelligence_contest/src) 
@@ -75,6 +76,8 @@ Haetae RUN(+ wrist_camera)
 ```
 export ROS_MASTER_URI=http://192.168.0.100:11311
 sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
+(or 'robot')
+(navigation_ws(janghyuk/12_ob..detec..)
 source ./robot.sh real manip 
 roslaunch pick_and_place_demo demo.launch sim:=false perception_src:=none
 ```
@@ -99,28 +102,76 @@ rosrun rviz rviz
 
 ### Contact graspnet server
 - python == 2.7, with dependencies of rirolab/navigation_ws 
-- master node 11311 필요(Haetae ROS 확인 후 돌려볼 것.)
+- master node 11311 필요(Haetae ROS 확인 후 돌려볼 것.:OK but we have to connect Haetae - uoais)
 ```
 roscd deep_grasping && python src/contact_grasp_server.py
 ```
 
 ### Contact graspnet client
-1. contact graps client.py
-- python == 3.7 please create conda env(server가 돌아가야 할듯. 5555 port 연결 실패)
+#### **1. contact graps client.py**
+- python == 3.7 please create conda env(OK)
 ```
 conda activate contact_graspnet_env \
     && roscd deep_grasping_ros/src/contact_graspnet \
     && CUDA_VISIBLE_DEVICES=0 python contact_graspnet/contact_grasp_client.py --local_regions --filter_grasps
 ```
 
-2. uoais client.py (예제는 작동 됨)
+#### **2. uoais client.py (예제는 작동 됨)**
 ```
 conda activate uoais \
     && roscd deep_grasping/src/uoais \
     && CUDA_VISIBLE_DEVICES=1 python demo/uoais_client.py
 ```
-* We must make 'uoais_client.py' or other files
-- For uoais example
+We must make 'uoais_client.py' or other files \
+
+
+**2.1 For uoais example 1 (Image example)**
 ```
 python tools/run_on_OSD.py --use-cgnet --dataset-path ./sample_data --config-file configs/R50_rgbdconcat_mlc_occatmask_hom_concat.yaml
+```
+**2.2 For uoais example 2 (use ROS RViz)** \
+We use ROS1 version + python3:: cv_bridge Problem \
+If you make catkin_ws 'catkin_make', You need to create New workspace 
+ 
+**Create 'cvbridge_build_ws [Link](https://cyaninfinite.com/ros-cv-bridge-with-python-3/)** 
+```
+sudo apt-get install python3-pip python-catkin-tools python3-dev python3-numpy
+sudo pip3 install rospkg catkin_pkg
+```
+```
+mkdir -p ~/cvbridge_build_ws/src
+
+catkin config -DPYTHON_EXECUTABLE=/usr/bin/python3 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
+# Instruct catkin to install built packages into install place. It is $CATKIN_WORKSPACE/install folder
+catkin config --install
+```
+```
+cd ~/cvbridge_build_ws/src
+git clone -b melodic https://github.com/ros-perception/vision_opencv.git
+
+
+apt-cache show ros-melodic-cv-bridge | grep Version
+    Version: 1.13.0-0xenial-20180416-143935-0800
+# Checkout right version in git repo. In our case it is 1.13.0
+cd src/vision_opencv/
+git checkout 1.13.0
+cd ../../
+
+# Build
+catkin build cv_bridge
+
+# Extend environment with new package
+source install/setup.bash --extend
+```
+- Check your workspace
+```
+python
+from cv_bridge.boost.cv_bridge_boost import getCvType 
+exit()
+```
+
+**Then, We can use this launch file**
+```
+conda activate uoais
+roslaunch uoais uoais_rs_d435.launch 
 ```
