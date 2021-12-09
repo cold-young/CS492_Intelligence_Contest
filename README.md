@@ -28,8 +28,8 @@ Contact_Graspnet_server.py (for ROS)
 1. git clone 'CS_492_intelligence_contest' or 'gist-ailab/deep-grasping' 
 2. 'cd src', git clone 'contact_graspnet','uoais'
 ```
-git clone https://github.com/SeungBack/contact_graspnet.git
-git clone https://github.com/gist-ailab/uoais.git
+git clone https://github.com/cold-young/contact_graspnet.git
+git clone https://github.com/cold-young/uoais.git
 ```
   + Enviroment setup(1~7) + Test "ROS nodes 1.Realsense D-435" ..(나중에 namespace 변경 필요할듯)
 - (https://github.com/gist-ailab/uoais#environment-setup)
