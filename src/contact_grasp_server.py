@@ -31,8 +31,15 @@ class ContactGraspNet():
 
         # initialize dnn server 
         self.grasp_sock, _ = su.initialize_server('localhost', 5555)
-        rospy.loginfo("Successfully got camera info")
 
+        '''
+        rospy.loginfo("Wating for camera info")
+        self.camera_info = rospy.wait_for_message("camera/color/camera_info", CameraInfo)
+        self.data = {}
+        self.data["intrinsics_matrix"] = np.array(self.camera_info.K).reshape(3, 3)
+        '''
+
+        rospy.loginfo("Successfully got camera info")
         self.bridge = cv_bridge.CvBridge()
         self.grasp_srv = rospy.Service('/get_target_grasp_pose', GetTargetContactGraspSegm, self.get_target_grasp_pose)
 
@@ -83,11 +90,28 @@ class ContactGraspNet():
                 H_cam_to_hand = orh.msg_to_se3(H_cam_to_hand)
                 break #4x4 matrix array
 
-
         self.initialize_marker()
         self.marker_id = 0
 
+        '''
+        rgb = rospy.wait_for_message("/camera/color/image_raw", Image)
+        depth = rospy.wait_for_message("/camera/aligned_depth_to_color/image_raw", Image)
+        rgb = self.bridge.imgmsg_to_cv2(rgb, desired_encoding='bgr8')
+        depth = self.bridge.imgmsg_to_cv2(depth, desired_encoding='32FC1')
+        self.data["rgb"] = rgb
+        self.data["depth"] = depth 
+        
+        '''
 
+        '''
+        rospy.loginfo_once("Sending rgb, depth to Contact-GraspNet client")
+        su.sendall_pickle(self.grasp_sock, self.data)
+        pred_grasps_cam, scores, contact_pts, segm_result = su.recvall_pickle(self.grasp_sock)
+        segmap, amodal_vis, visible_vis, occlusions = \
+            self.bridge.cv2_to_imgmsg(segm_result["segm"]), segm_result["amodal_vis"], segm_result["visible_vis"], segm_result["occlusions"].tolist()
+        self.uoais_vm_pub.publish(self.bridge.cv2_to_imgmsg(visible_vis))
+        self.uoais_am_pub.publish(self.bridge.cv2_to_imgmsg(amodal_vis))
+        '''
         # send start signal to dnn client
         su.sendall_pickle(self.grasp_sock, 1)
         pred_grasps_cam, scores, contact_pts, segm_result = su.recvall_pickle(self.grasp_sock)

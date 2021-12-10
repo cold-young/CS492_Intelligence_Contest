@@ -29,3 +29,5 @@ print(img.shape, np.max(img))
 # mg = imgviz.io.pyplot_to_numpy()
 
 # plt.imshow(insviz)
+
+#error: Failed to establish dbus connection(616, 1064, 3) 255
