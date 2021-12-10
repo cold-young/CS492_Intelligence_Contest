@@ -78,9 +78,11 @@ export ROS_MASTER_URI=http://192.168.0.100:11311
 sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
 (or 'robot')
 (navigation_ws(janghyuk/12_ob..detec..)
-source ./robot.sh real manip 
+source ./robot.sh real manip
 roslaunch pick_and_place_demo demo.launch sim:=false perception_src:=none
 ```
+if you use zsh, robot.sh -> remove ~~ source .bash ~~
+and put ~/.zshrc 'export $HOSTNAME = ${YOUR machine name}' 
 
 (To modify...)
 ``` 
