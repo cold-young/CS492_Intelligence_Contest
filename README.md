@@ -1,9 +1,13 @@
 # CS492_Intelligence_Contest
 #### forked from Deep Grasping ROS (Seunghyeok Back)
-#### Project member: Chanyoung Ahn, [Taeyeoung lee](https://github.com/sen-lee)
+- **Project member**: Chanyoung Ahn, [Taeyeoung lee](https://github.com/sen-lee)
+- **Project Result** : [[Video]](https://youtu.be/xjTqSPl0Xxc), [[Image]](https://github.com/cold-young/CS492_Intelligence_Contest/tree/chanyoung/contact_grasp/imgs) 
 
-- ROS wrapper for DNN based robotic grasping algorithms
-- Support Contact-GraspNet [[paper]](https://arxiv.org/abs/2103.14127) [[code]](https://github.com/NVlabs/contact_graspnet)
+
+ROS wrapper for DNN based robotic grasping algorithms \
+Support Contact-GraspNet [[paper]](https://arxiv.org/abs/2103.14127) [[code]](https://github.com/NVlabs/contact_graspnet)
+
+
 
 
 ## Contact-GraspNet Framework
