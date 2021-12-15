@@ -5,13 +5,6 @@
 - ROS wrapper for DNN based robotic grasping algorithms
 - Support Contact-GraspNet [[paper]](https://arxiv.org/abs/2103.14127) [[code]](https://github.com/NVlabs/contact_graspnet)
 
-## TODO
-- Check the execution environment and description `/doc`
-- Check the operation of each module
-- Create launch file
-- Check the Grasp pose generation in Real Robot
-- arm camera link.... (https://github.com/SeungBack/azure_kinect_manager check!)
-
 ## Contact-GraspNet Framework
 ```
 Deep_grasping/src
@@ -76,16 +69,18 @@ python -m pip install -e detectron2
 
 ## RUN
 ### Robot
+- Use Haetae2025. If you use RViz another machine, you have to run 'pick_and_place_demo/demo.launch' on haetae2025
 ``` 
 export ROS_MASTER_URI=http://192.168.0.100:11311
+export ROS_HOST_URI=http://192.168.0.24 ??????
 sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
-rostopic list
 
-TODO: localhost:11311 -> haetae 
-launch file 
-bash file ....
+source ./robot.sh real manip (or source ./robot_zsh.sh real manip)
+roslaunch pick_and_place_demo demo.launch sim:=false perception_src:=none
 ```
-- RViz(Haetae ROS 연결 확인 후)
+
+### RViz
+- If you want to use 'wrist_camera' topics, have to run 'demo.launch'
 ```
 export ROS_MASTER_URI=http://192.168.0.100:11311
 source navigation_ws/devel/setup.bash
@@ -94,23 +89,23 @@ rosrun rviz rviz
 
 ### Contact graspnet server
 - python == 2.7, with dependencies of rirolab/navigation_ws 
-- master node 11311 필요
 ```
 roscd deep_grasping && python src/contact_grasp_server.py
 ```
+
 
 ### Contact graspnet client
 1. contact graps client.py
 - python == 3.7 please create conda env
 ```
 conda activate contact_graspnet_env \
-    && roscd deep_grasping_ros/src/contact_graspnet \
+    && roscd deep_grasping/src/contact_graspnet \
     && CUDA_VISIBLE_DEVICES=0 python contact_graspnet/contact_grasp_client.py --local_regions --filter_grasps
 ```
 
 2. uoais client.py
 ```
 conda activate uoais \
-    && roscd deep_grasping_ros/src/uoais \
+    && roscd deep_grasping/src/uoais \
     && CUDA_VISIBLE_DEVICES=1 python demo/uoais_client.py
 ```
