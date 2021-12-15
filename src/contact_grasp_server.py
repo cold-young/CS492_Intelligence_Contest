@@ -1,6 +1,9 @@
 #!/usr/bin/env python2.7
 
 from math import degrees
+from sys import path_importer_cache
+
+from numpy.core.numeric import roll
 import rospy
 import ros_numpy
 import cv2, cv_bridge
@@ -8,7 +11,9 @@ import numpy as np
 import message_filters
 
 import tf2_ros
-from sensor_msgs.msg import Image, CameraInfo, PointCloud2
+from sensor_msgs.msg import Image, CameraInfo, PointCloud2 
+from uoais.msg import UOAISResults
+
 from easy_tcp_python2_3 import socket_utils as su
 from open3d_ros_helper import open3d_ros_helper as orh
 from visualization_msgs.msg import MarkerArray, Marker
@@ -30,9 +35,17 @@ class ContactGraspNet():
         rospy.loginfo("Starting contact_graspnet node")
 
         # initialize dnn server 
-        self.grasp_sock, _ = su.initialize_server('localhost', 5555)
-        rospy.loginfo("Successfully got camera info")
+        self.grasp_sock, _ = su.initialize_server('localhost', 7777)
+        #self.grasp_sock,_=su.initialize_server('192.168.0.47',5555)
+        
+        rospy.loginfo("Wating for camera info")
+        self.camera_info = rospy.wait_for_message("/haetae/haetae_wrist_camera/color/camera_info", CameraInfo)
+        self.data = {}
+        self.data["intrinsics_matrix"] = np.array(self.camera_info.K).reshape(3, 3)
+        print (self.data)
+        
 
+        rospy.loginfo("Successfully got camera info")
         self.bridge = cv_bridge.CvBridge()
         self.grasp_srv = rospy.Service('/get_target_grasp_pose', GetTargetContactGraspSegm, self.get_target_grasp_pose)
 
@@ -47,7 +60,7 @@ class ContactGraspNet():
         self.marker_id = 0
         self.cmap = plt.get_cmap("YlGn")
         #control_points = np.load("/home/demo/catkin_ws/src/deep_grasping_ros/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
-        control_points = np.load("/home/scorpius//home/scorpius/catkin_ws/src/deep-grasping/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
+        control_points = np.load("/home/scorpius/catkin_ws/src/deep-grasping/src/contact_graspnet/gripper_control_points/panda.npy")[:, :3]
         control_points = [[0, 0, 0], control_points[0, :], control_points[1, :], control_points[-2, :], control_points[-1, :]]
         control_points = np.asarray(control_points, dtype=np.float32)
         control_points[1:3, 2] = 0.0584
@@ -62,10 +75,12 @@ class ContactGraspNet():
 
     def get_target_grasp_pose(self, msg):
         
+
+        rospy.loginfo("get target grasp pose start")
         while True:
             try: #tf_buffer.lookup_transform() / Transformation matrix
-                H_base_to_cam = self.tf_buffer.lookup_transform("haetae_ur5e_base_link", "haetae_wrist_camera_link", rospy.Time(), rospy.Duration(5.0))
-                H_base_to_hand = self.tf_buffer.lookup_transform("haetae_ur5e_base_link", "haetae_gripper_base_link", rospy.Time(), rospy.Duration(5.0))
+                H_base_to_cam = self.tf_buffer.lookup_transform("haetae_base_link", "haetae_wrist_camera_link", rospy.Time(), rospy.Duration(5.0))
+                H_base_to_hand = self.tf_buffer.lookup_transform("haetae_base_link", "haetae_gripper_base_link", rospy.Time(), rospy.Duration(5.0))
                 H_cam_to_hand = self.tf_buffer.lookup_transform("haetae_wrist_camera_link", "haetae_gripper_base_link", rospy.Time(), rospy.Duration(5.0))
                 #msg-> pose,PoseStamped,Trasnform, TransformStamped
                
@@ -83,17 +98,62 @@ class ContactGraspNet():
                 H_cam_to_hand = orh.msg_to_se3(H_cam_to_hand)
                 break #4x4 matrix array
 
-
         self.initialize_marker()
         self.marker_id = 0
 
+        '''
+        rgb = rospy.wait_for_message("/camera/color/image_raw", Image)
+        depth = rospy.wait_for_message("/camera/aligned_depth_to_color/image_raw", Image)
+        rgb = self.bridge.imgmsg_to_cv2(rgb, desired_encoding='bgr8')
+        depth = self.bridge.imgmsg_to_cv2(depth, desired_encoding='32FC1')
+        self.data["rgb"] = rgb
+        self.data["depth"] = depth 
+        
+        '''
+
+        '''
+        rospy.loginfo_once("Sending rgb, depth to Contact-GraspNet client")
+        su.sendall_pickle(self.grasp_sock, self.data)
+        pred_grasps_cam, scores, contact_pts, segm_result = su.recvall_pickle(self.grasp_sock)
+        segmap, amodal_vis, visible_vis, occlusions = 
+            self.bridge.cv2_to_imgmsg(segm_result["segm"]), segm_result["amodal_vis"], segm_result["visible_vis"], segm_result["occlusions"].tolist()
+        self.uoais_vm_pub.publish(self.bridge.cv2_to_imgmsg(visible_vis))
+        self.uoais_am_pub.publish(self.bridge.cv2_to_imgmsg(amodal_vis))
+        '''
+
+        rospy.loginfo("Segmantation start")
 
         # send start signal to dnn client
-        su.sendall_pickle(self.grasp_sock, 1)
-        pred_grasps_cam, scores, contact_pts, segm_result = su.recvall_pickle(self.grasp_sock)
-        segmap, vis, occlusions = \
-            self.bridge.cv2_to_imgmsg(segm_result["segm"]), segm_result["vis"], segm_result["occlusions"].tolist()
-        self.uoais_am_pub.publish(self.bridge.cv2_to_imgmsg(vis))
+        rgb    = rospy.wait_for_message("/haetae/haetae_wrist_camera/color/image_raw", Image)
+        depth  = rospy.wait_for_message("/haetae/haetae_wrist_camera/aligned_depth_to_color/image_raw", Image)
+
+        self.data['rgb']    = self.bridge.imgmsg_to_cv2(rgb, desired_encoding='bgr8')
+        self.data['depth']  = self.bridge.imgmsg_to_cv2(depth, desired_encoding='32FC1') /1000.
+        # obtain segresult and construct segmap
+        uoais_result = rospy.wait_for_message("/uoais/results", UOAISResults)
+        masks = [ros_numpy.numpify(img) for img in uoais_result.amodal_masks]
+        segmap = np.zeros(self.data['depth'].shape)
+        for i in range(segmap.shape[0]):
+            for j in range(segmap.shape[1]):
+                tmp = [m[i,j] for m in masks]
+                try:
+                    segmap[i,j] = tmp.index(1)
+                except:
+                    segmap[i,j] = 0
+
+
+        self.data['segmap'] = segmap
+
+
+
+        rospy.loginfo("Send data")
+
+        su.sendall_pickle(self.grasp_sock, self.data)
+        pred_grasps_cam, scores  = su.recvall_pickle(self.grasp_sock)
+        rospy.loginfo("Receive data")
+        #segmap, vis, occlusions = \
+        #   self.bridge.cv2_to_imgmsg(segm_result["segm"]), segm_result["vis"], segm_result["occlusions"].tolist()
+        #self.uoais_am_pub.publish(self.bridge.cv2_to_imgmsg(vis))
 
 
         if pred_grasps_cam is None:
@@ -121,6 +181,30 @@ class ContactGraspNet():
                 all_pts.append(p_base_to_gripper) # [3, 15]
 #                self.publish_marker(p_base_to_gripper, "panda_link0", scores[k][i]) ###
                 self.publish_marker(p_base_to_gripper, "haetae_ur5e_base_link", scores[k][i])
+
+                # get pose
+
+                pts = p_base_to_gripper
+                x = (pts[0][5] + pts[0][6])/2
+                y = (pts[1][5] + pts[1][6])/2
+                z = (pts[2][5] + pts[2][6])/2
+
+                v       = [pts[0][2]-pts[0][1], pts[1][2]-pts[1][1],pts[2][2]-pts[2][1]]
+                unit_v  = v / np.linalg.norm(v)
+
+                roll    = np.arccos(np.dot(unit_v, [1,0,0]))
+                pitch   = np.arccos(np.dot(unit_v, [0,1,0]))
+                yaw     = np.arccos(np.dot(unit_v, [0,0,1]))
+                qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+                qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+                qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+                qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+
+                print("Object ("+  str(k)+" ) Score " +str(scores[k][i]) +" result")
+                print("Pose result "  )
+                print(x, y, z, qx, qy ,qz, qw)
+
+
                 H_base_to_target = np.matmul(H_base_to_cam, H_cam_to_target)
                 H_base_to_target[:3, :3] = np.matmul(H_base_to_target[:3, :3], H_cam_to_hand[:3, :3])
                 t_target_grasp = orh.se3_to_transform_stamped(H_base_to_target, "haetae_ur5e_base_link", "target_grasp_pose") ###
@@ -130,8 +214,8 @@ class ContactGraspNet():
                 grasp.score = scores[k][i]
                 grasp.transform = t_target_grasp
                 grasps.append(grasp)
-
-        return GetTargetContactGraspSegmResponse(grasps, segmap, occlusions)
+ 
+        return GetTargetContactGraspSegmResponse(grasps)
 
     def initialize_marker(self):
         # Delete all existing markers
