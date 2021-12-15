@@ -1,15 +1,10 @@
 # CS492_Intelligence_Contest
 #### forked from Deep Grasping ROS (Seunghyeok Back)
+#### Project member: Chanyoung Ahn, [Taeyeoung lee](https://github.com/sen-lee)
 
 - ROS wrapper for DNN based robotic grasping algorithms
 - Support Contact-GraspNet [[paper]](https://arxiv.org/abs/2103.14127) [[code]](https://github.com/NVlabs/contact_graspnet)
 
-## TODO
-- Check the execution environment and description `/doc`
-- Check the operation of each module
-- Create launch file
-- Check the Grasp pose generation in Real Robot
-- arm camera link.... (https://github.com/SeungBack/azure_kinect_manager check!)
 
 ## Contact-GraspNet Framework
 ```
@@ -75,8 +70,9 @@ pip install shapely torchfile opencv-python pyfastnoisesimd rapidfuzz
 Haetae RUN(+ wrist_camera)
 ```
 export ROS_MASTER_URI=http://192.168.0.100:11311
+export ROS_HOST_URI=http://192.168.0.24 ??????
 sudo route add -net 192.168.10.10 netmask 255.255.255.255 gw 192.168.0.100
-(or 'robot')
+(or alias 'robot')
 (navigation_ws(janghyuk/12_ob..detec..)
 source ./robot.sh real manip
 roslaunch pick_and_place_demo demo.launch sim:=false perception_src:=none
@@ -95,7 +91,8 @@ launch file
 bash file ....
 ```
 
-- RViz(Haetae ROS 연결 확인 후)
+### RViz(Haetae ROS 연결 확인 후)
+-  If you want to use 'wrist_camera' topics, have to run 'demo.launch'
 ```
 export ROS_MASTER_URI=http://192.168.0.100:11311
 source navigation_ws/devel/setup.bash
@@ -104,7 +101,6 @@ rosrun rviz rviz
 
 ### Contact graspnet server
 - python == 2.7, with dependencies of rirolab/navigation_ws 
-- master node 11311 필요(Haetae ROS 확인 후 돌려볼 것.:OK but we have to connect Haetae - uoais)
 ```
 roscd deep_grasping && python src/contact_grasp_server.py
 ```
@@ -116,6 +112,10 @@ roscd deep_grasping && python src/contact_grasp_server.py
 conda activate contact_graspnet_env \
     && roscd deep_grasping_ros/src/contact_graspnet \
     && CUDA_VISIBLE_DEVICES=0 python contact_graspnet/contact_grasp_client.py --local_regions --filter_grasps
+```
+- Check grasp pose, orientation
+```
+rosservice call /get_target_grasp_pose      
 ```
 
 #### **2. uoais client.py (예제는 작동 됨)**
